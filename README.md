@@ -18,7 +18,7 @@ pip install -r requirements.txt
 ```
 
 2. **Set up environment variables:**
-   - Copy `.env.example` to `.env`
+   - Create `.env` file
    - Add your API keys:
      - `OPENAI_API_KEY`: Your OpenAI API key
      - `PINECONE_API_KEY`: Your Pinecone API key
@@ -27,7 +27,7 @@ pip install -r requirements.txt
 3. **Create Pinecone Index:**
    - Log in to Pinecone console
    - Create a new index with:
-     - Dimension: 1536 (for text-embedding-3-small)
+     - Dimension: 512 (for text-embedding-3-small)
      - Metric: cosine
 
 4. **Run the application:**
