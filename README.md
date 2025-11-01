@@ -65,9 +65,9 @@ streamlit run app.py
 ├── app.py                  # Main Streamlit application
 ├── document_processor.py   # Document processing utilities
 ├── requirements.txt        # Python dependencies
-├── .env.example           # Environment variables template
-├── projects.json          # Project metadata (auto-generated)
-└── chat_history_*.json    # Chat histories (auto-generated)
+├── .env                    # Environment variables (to create manually)
+├── projects.json           # Project metadata (auto-generated)
+└── chat_history_*.json     # Chat histories (auto-generated)
 ```
 
 ## Notes
