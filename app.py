@@ -10,6 +10,11 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Global configuration parameters
+CHUNK_SIZE = 1000  # Characters per chunk
+MAX_PROJECT_SIZE_MB = 100  # Maximum total size for all files in a project (in MB)
+MAX_PROJECT_SIZE_BYTES = MAX_PROJECT_SIZE_MB * 1024 * 1024  # Convert to bytes
+
 # Page config
 st.set_page_config(page_title="RAG Chat", layout="wide", initial_sidebar_state="expanded")
 
@@ -64,7 +69,7 @@ def get_embedding(text):
     )
     return response.data[0].embedding
 
-def chunk_text(text, chunk_size=1000):
+def chunk_text(text, chunk_size=CHUNK_SIZE):
     chunks = []
     for i in range(0, len(text), chunk_size):
         chunks.append(text[i:i + chunk_size])
@@ -105,10 +110,8 @@ if page == "Create Project":
         "Upload Documents (PDF, TXT, DOCX)",
         type=["pdf", "txt", "docx"],
         accept_multiple_files=True,
-        help="Maximum total size: 100MB"
+        help=f"Maximum total size: {MAX_PROJECT_SIZE_MB}MB. You can upload any number of files as long as the combined size doesn't exceed this limit."
     )
-    
-    chunk_size = st.slider("Chunk Size (characters)", 500, 2000, 1000, 100)
     
     if st.button("Process & Create Project", type="primary"):
         if not project_name:
@@ -120,15 +123,15 @@ if page == "Create Project":
         else:
             # Check total size
             total_size = sum([file.size for file in uploaded_files])
-            if total_size > 100 * 1024 * 1024:
-                st.error("Total file size exceeds 100MB")
+            if total_size > MAX_PROJECT_SIZE_BYTES:
+                st.error(f"Total file size exceeds {MAX_PROJECT_SIZE_MB}MB (current: {total_size / (1024 * 1024):.2f}MB)")
             else:
                 with st.spinner("Processing documents..."):
                     from document_processor import process_documents
                     
                     try:
-                        # Process documents
-                        all_chunks = process_documents(uploaded_files, chunk_size)
+                        # Process documents with fixed chunk size
+                        all_chunks = process_documents(uploaded_files, CHUNK_SIZE)
                         
                         # Create embeddings and upsert to Pinecone
                         progress_bar = st.progress(0)
@@ -164,11 +167,13 @@ if page == "Create Project":
                         st.session_state.projects[project_name] = {
                             "created_at": datetime.now().isoformat(),
                             "num_chunks": len(all_chunks),
-                            "files": [f.name for f in uploaded_files]
+                            "files": [f.name for f in uploaded_files],
+                            "total_size_mb": total_size / (1024 * 1024)
                         }
                         save_projects()
                         
                         st.success(f"✅ Project '{project_name}' created successfully with {len(all_chunks)} chunks!")
+                        st.info(f"📊 Total size: {total_size / (1024 * 1024):.2f}MB | Files: {len(uploaded_files)} | Chunk size: {CHUNK_SIZE} characters")
                         st.balloons()
                         
                     except Exception as e:

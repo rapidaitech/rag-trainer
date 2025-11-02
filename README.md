@@ -4,11 +4,21 @@ A Streamlit-based RAG (Retrieval Augmented Generation) application that allows y
 
 ## Features
 
-- 📄 Upload multiple documents (PDF, TXT, DOCX) up to 100MB total
+- 📄 Upload multiple documents (PDF, TXT, DOCX)
 - 🗂️ Create multiple RAG projects
 - 💬 Chat with your documents using conversational AI
 - 💾 Persistent chat history across sessions
 - 🎯 Context-aware responses using vector search
+- ⚙️ Configurable chunk size and project size limits
+
+## Configuration
+
+The application includes global configuration parameters at the top of `app.py`:
+
+- `CHUNK_SIZE`: Characters per chunk (default: 1000)
+- `MAX_PROJECT_SIZE_MB`: Maximum total size for all files in a project (default: 100MB)
+
+You can modify these values directly in the code to suit your needs.
 
 ## Setup
 
@@ -42,8 +52,10 @@ streamlit run app.py
 1. Navigate to "Create Project" page
 2. Enter a unique project name
 3. Upload your documents (PDF, TXT, or DOCX)
-4. Adjust chunk size if needed (default: 1000 characters)
-5. Click "Process & Create Project"
+   - You can upload any number of files
+   - Combined size must not exceed the configured limit (default: 100MB)
+4. Click "Process & Create Project"
+5. Documents will be automatically chunked based on the configured chunk size
 
 ### Chatting with Documents
 
@@ -75,3 +87,5 @@ streamlit run app.py
 - Chat histories are saved locally and persist across sessions
 - Each project's data is stored in Pinecone with project-specific metadata
 - The app uses GPT-4 for responses and text-embedding-3-small for embeddings
+- Chunk size is fixed at the configured value (default: 1000 characters)
+- Project size information is tracked and displayed after creation
